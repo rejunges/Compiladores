@@ -1,0 +1,225 @@
+PARSER_BEGIN(Lugosi)
+import java.io.*;
+public class Lugosi {
+
+  public static void main(String args[]) throws ParseException,IOException {
+    
+    Lugosi parser = new Lugosi(new FileInputStream(args[0]));
+    parser.Lugosi();
+  }
+
+}
+
+PARSER_END(Lugosi)
+
+SKIP :
+{
+  " "
+| "\t"
+| "\n"
+| "\r"
+}
+
+TOKEN :
+{
+  <MAIN: "main">
+| <ACHAVES: "{">
+| <FCHAVES: "}">
+| <VAR:"var">
+| <PONTO_VIRGULA:";">
+| <TIPO:("int" | "bool")>
+| <ATRIBUICAO:":=">
+| <APARENTESES:"(">
+| <FPARENTESES:")">
+| <VIRGULA:",">
+| <TRUE:"true">
+| <FALSE:"false">
+| <IF: "if">
+| <WHILE:"while">
+| <DO:"do">
+| <RETURN:"return">
+| <PRINT:"print">
+| <FUNCTION:"function">
+| <TOKEN_ID: ["a"-"z","A"-"Z"] ( ["a"-"z","A"-"Z","0"-"9"])* ("_")*>
+| <TOKEN_NUMLITERAL:(["0"-"9"])* ("."(["0"-"9"])? ) ("E" ("+" | "-")? (["0"-"9"])*)?>
+}
+
+TOKEN :
+{
+ <OP: ("+" | "-" | "*" | "/" | "&&" | "||" | "<" | ">" | "==")>
+|< ID: ["a"-"z","A"-"Z"] ( ["a"-"z","A"-"Z","0"-"9"])*>
+
+}
+
+
+
+void Lugosi () :
+{}
+{ 
+
+  Main() 
+  (Func())?
+  <EOF> 
+}
+
+void Func():
+{}
+{
+  (<FUNCTION>
+  Tipo()
+  <TOKEN_ID>
+  <APARENTESES>
+  (ListaArg())?
+  <FPARENTESES>
+  <ACHAVES>
+  VarDecl()
+  SeqComandos()
+  <FCHAVES>)+
+
+}
+
+void ListaArg():
+{}
+{
+  Tipo()
+  <TOKEN_ID>
+  (<PONTO_VIRGULA> ListaArg())?
+}
+
+void Main ():
+{}
+{
+ <MAIN> <ACHAVES> 
+  VarDecl()
+  SeqComandos()
+
+ <FCHAVES>
+
+}
+
+void VarDecl():
+{}
+{
+  (<VAR>
+  Tipo()
+  <TOKEN_ID>
+  <PONTO_VIRGULA>)*
+
+}
+
+void Tipo():
+{}
+{
+  <TIPO>
+}
+
+void SeqComandos():
+{}
+{
+  (Comando())*
+}
+
+void Comando():
+{}
+{
+  (<TOKEN_ID>
+  Comando2()) |
+  
+  (<IF>
+  <APARENTESES>
+  Exp()
+  <FPARENTESES>
+  <ACHAVES>
+  SeqComandos()
+  <FCHAVES>
+  <PONTO_VIRGULA>) |
+
+  (<WHILE> 
+  <APARENTESES>
+  Exp()
+  <FPARENTESES>
+  <DO>
+  <ACHAVES>
+  SeqComandos()
+  <FCHAVES>
+  <PONTO_VIRGULA>)  |
+
+  (<DO>
+  <ACHAVES>
+  SeqComandos()
+  <FCHAVES>
+  <WHILE>
+  <APARENTESES>
+  Exp()
+  <FPARENTESES>
+  <PONTO_VIRGULA>) |
+
+(  <RETURN> 
+  Exp()
+  <PONTO_VIRGULA>) |
+
+(  <PRINT>
+  <APARENTESES>
+  Exp()
+  <FPARENTESES>
+  <PONTO_VIRGULA>)
+
+}
+
+//Comando 2 criado para eliminar a recursão da gramática
+void Comando2():
+{}
+{
+  (<ATRIBUICAO>
+  Exp()
+  <PONTO_VIRGULA>)  |
+  
+  (<APARENTESES>
+  ListaExp()
+  <FPARENTESES>
+  <PONTO_VIRGULA>)
+}
+
+void Exp():
+{}
+{
+  (<APARENTESES>
+  Exp()
+  <OP>
+  Exp()
+  <FPARENTESES>) |
+  Fator()
+}
+
+void ListaExp():
+{}
+{
+  Exp()
+  ListaExp2()
+}
+
+//Criada para eliminar a recursao em ListExp
+void ListaExp2():
+{}
+{
+  (<VIRGULA>
+  Exp()
+  ListaExp2())?
+}
+
+void Fator():
+{}
+{
+  (<TOKEN_ID>
+  Fator2()) |
+  <TOKEN_NUMLITERAL> |
+  <TRUE> | <FALSE>
+}
+
+void Fator2():
+{}
+{
+  <APARENTESES>
+  (ListaExp())?
+  <FPARENTESES>
+}
