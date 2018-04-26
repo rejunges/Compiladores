@@ -56,55 +56,32 @@ TOKEN :
 void Lugosi () :
 {}
 { 
-
-  Main() 
-  (Func())?
-  <EOF> 
+  Main() (Func())?  <EOF> 
 }
 
 void Func():
 {}
 {
-  (<FUNCTION>
-  Tipo()
-  <TOKEN_ID>
-  <APARENTESES>
-  (ListaArg())?
-  <FPARENTESES>
-  <ACHAVES>
-  VarDecl()
-  SeqComandos()
-  <FCHAVES>)+
-
+  (<FUNCTION> Tipo() <TOKEN_ID> <APARENTESES> (ListaArg())? <FPARENTESES> <ACHAVES> VarDecl() SeqComandos() <FCHAVES>)+
 }
 
 void ListaArg():
 {}
 {
-  Tipo()
-  <TOKEN_ID>
-  (<PONTO_VIRGULA> ListaArg())?
+  Tipo() <TOKEN_ID> (<PONTO_VIRGULA> ListaArg())?
 }
 
 void Main ():
 {}
 {
- <MAIN> <ACHAVES> 
-  VarDecl()
-  SeqComandos()
-
- <FCHAVES>
+ <MAIN> <ACHAVES> VarDecl() SeqComandos() <FCHAVES>
 
 }
 
 void VarDecl():
 {}
 {
-  (<VAR>
-  Tipo()
-  <TOKEN_ID>
-  <PONTO_VIRGULA>)*
-
+  (<VAR> Tipo() <TOKEN_ID> <PONTO_VIRGULA>)*
 }
 
 void Tipo():
@@ -122,47 +99,12 @@ void SeqComandos():
 void Comando():
 {}
 {
-  (<TOKEN_ID>
-  Comando2()) |
-  
-  (<IF>
-  <APARENTESES>
-  Exp()
-  <FPARENTESES>
-  <ACHAVES>
-  SeqComandos()
-  <FCHAVES>
-  <PONTO_VIRGULA>) |
-
-  (<WHILE> 
-  <APARENTESES>
-  Exp()
-  <FPARENTESES>
-  <DO>
-  <ACHAVES>
-  SeqComandos()
-  <FCHAVES>
-  <PONTO_VIRGULA>)  |
-
-  (<DO>
-  <ACHAVES>
-  SeqComandos()
-  <FCHAVES>
-  <WHILE>
-  <APARENTESES>
-  Exp()
-  <FPARENTESES>
-  <PONTO_VIRGULA>) |
-
-(  <RETURN> 
-  Exp()
-  <PONTO_VIRGULA>) |
-
-(  <PRINT>
-  <APARENTESES>
-  Exp()
-  <FPARENTESES>
-  <PONTO_VIRGULA>)
+  (<TOKEN_ID> Comando2()) 
+  |(<IF> <APARENTESES> Exp() <FPARENTESES> <ACHAVES> SeqComandos() <FCHAVES> <PONTO_VIRGULA>)
+  |(<WHILE> <APARENTESES> Exp() <FPARENTESES> <DO> <ACHAVES> SeqComandos() <FCHAVES> <PONTO_VIRGULA>)
+  |(<DO> <ACHAVES> SeqComandos() <FCHAVES> <WHILE> <APARENTESES> Exp() <FPARENTESES> <PONTO_VIRGULA>)
+  |(<RETURN> Exp() <PONTO_VIRGULA>)
+  |(<PRINT> <APARENTESES> Exp() <FPARENTESES> <PONTO_VIRGULA>)
 
 }
 
@@ -170,56 +112,41 @@ void Comando():
 void Comando2():
 {}
 {
-  (<ATRIBUICAO>
-  Exp()
-  <PONTO_VIRGULA>)  |
-  
-  (<APARENTESES>
-  ListaExp()
-  <FPARENTESES>
-  <PONTO_VIRGULA>)
+  (<ATRIBUICAO> Exp() <PONTO_VIRGULA>) 
+  |(<APARENTESES> ListaExp() <FPARENTESES> <PONTO_VIRGULA>)
 }
 
 void Exp():
 {}
 {
-  (<APARENTESES>
-  Exp()
-  <OP>
-  Exp()
-  <FPARENTESES>) |
-  Fator()
+  (<APARENTESES> Exp() <OP> Exp() <FPARENTESES>)
+  | Fator()
 }
 
 void ListaExp():
 {}
 {
-  Exp()
-  ListaExp2()
+  Exp() ListaExp2()
 }
 
 //Criada para eliminar a recursao em ListExp
 void ListaExp2():
 {}
 {
-  (<VIRGULA>
-  Exp()
-  ListaExp2())?
+  (<VIRGULA> Exp() ListaExp2())?
 }
 
 void Fator():
 {}
 {
-  (<TOKEN_ID>
-  Fator2()) |
-  <TOKEN_NUMLITERAL> |
-  <TRUE> | <FALSE>
+  (<TOKEN_ID> Fator2()) 
+  | <TOKEN_NUMLITERAL> 
+  | <TRUE> 
+  | <FALSE>
 }
 
 void Fator2():
 {}
 {
-  <APARENTESES>
-  (ListaExp())?
-  <FPARENTESES>
+  <APARENTESES> (ListaExp())? <FPARENTESES>
 }
