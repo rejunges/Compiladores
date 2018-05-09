@@ -1,0 +1,4 @@
+main{};
+matheus_ := 24;
+if ( true ) { print (compiladores) };
+

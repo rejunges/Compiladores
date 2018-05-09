@@ -2,4 +2,4 @@
 
 flex lugosi.l
 gcc lex.yy.c
-./a.out < arq
+./a.out < teste4
