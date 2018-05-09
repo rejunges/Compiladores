@@ -2,4 +2,4 @@
 
 javacc Lugosi.jj
 javac *.java
-java Lugosi teste.lug
+java Lugosi teste3.lug
