@@ -1,0 +1,283 @@
+PARSER_BEGIN(Lugosi)
+import java.io.*;
+
+class ProgramaLugosi{
+  Main main;
+  ArrayList <Func> funcs;
+  ProgramaLugosi(p,a) {this.p = main; this.a = funcs;}
+}
+
+class Main{
+  ArrayList <VarDecl> vd;
+  ArrayList <SeqComandos> seqComandos;
+  Main(vd, seqComandos) {this.vd = vd; this.seqComandos = seqComandos;}
+}
+
+class VarDecl{
+  String id;  
+  String tipo;
+  VarDecl(id, tipo) {this.id = id.image; this.tipo = tipo;}
+}
+
+class SeqComandos{
+  ArrayList <Comando> comando; 
+}
+
+class Comando{}
+class CAtrib extends Comando{
+  String id;
+  Exp e;
+}
+
+class CExpParenteses extends Comando{
+  String id;
+  ArrayList <ListaExp> listExp;
+}
+
+class CIf extends Comando{
+  Exp e;
+  ArrayList <SeqComandos> seqComandos;
+}
+
+class CWhile extends Comando{
+  Exp e;
+  ArrayList <SeqComandos> seqComandos;    
+}
+
+class CDo extends Comando{
+  Exp e;
+  ArrayList <SeqComandos> seqComandos;
+}
+
+class CReturn extends Comando{
+  Exp e;
+}
+
+class CPrint extends Comando{
+  Exp e;
+}
+
+class Exp{}
+
+class OperacaoBinaria extends Exp{
+  Exp e1;
+  Exp e2;
+  String operador;
+}
+
+class Fator extends Exp{}
+
+class FId extends Fator{
+  String id;
+}
+
+class FExpParenteses extends Fator {
+  String id;
+  ArrayList <ListaExp> listExp;
+}
+
+class FNumLiteral extends Fator {
+  String numLiteral;
+}
+
+class FTipo extends Fator {
+  String tipo;
+}
+
+class ListaExp {
+  Exp e;
+}
+
+class Func {
+  String tipo;
+  String id;
+  ArrayList <ListaArg> listaArg;
+  ArrayList <VarDecl> vd;
+  ArrayList <SeqComandos> seqComandos;
+
+  Func(tipo,id,listaArg,vd,seqComandos) {this.tipo = tipo; this.id = id.image; this.listaArg; this.vd = vd; this.seqComandos = seqComandos;}
+}
+
+class ListaArg{
+  String tipo;
+  String id;
+
+  ListaArg(tipo, id) {this.tipo = tipo; this.id = id.image;}
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+public class Lugosi {
+
+  public static void main(String args[]) throws ParseException,IOException {
+    
+    Lugosi parser = new Lugosi(new FileInputStream(args[0]));
+    ProgramaLugosi lug = parser.Lugosi();
+    //printer(lug)
+  }
+/*
+  static void printer (Lugosi lug){
+    if (lug istanceof )
+  }
+*/
+}
+
+PARSER_END(Lugosi)
+
+//////////////////////////////////////////////////////////////////////////////////////////////q
+
+SKIP :
+{
+  " "
+| "\t"
+| "\n"
+| "\r"
+}
+
+TOKEN :
+{
+  <MAIN: "main">
+| <ACHAVES: "{">
+| <FCHAVES: "}">
+| <VAR:"var">
+| <PONTO_VIRGULA:";">
+| <TIPO:("int" | "bool")>
+| <ATRIBUICAO:":=">
+| <APARENTESES:"(">
+| <FPARENTESES:")">
+| <VIRGULA:",">
+| <TRUE:"true">
+| <FALSE:"false">
+| <IF: "if">
+| <WHILE:"while">
+| <DO:"do">
+| <RETURN:"return">
+| <PRINT:"print">
+| <FUNCTION:"function">
+| <TOKEN_ID: ["a"-"z","A"-"Z"] ( ["a"-"z","A"-"Z","0"-"9"])* ("_")*>
+| <TOKEN_NUMLITERAL:(["0"-"9"])+ ("."(["0"-"9"])+ )? ("E" ("+" | "-")? (["0"-"9"])+)?>
+}
+
+TOKEN :
+{
+ <OP: ("+" | "-" | "*" | "/" | "&&" | "||" | "<" | ">" | "==")>
+|< ID: ["a"-"z","A"-"Z"] ( ["a"-"z","A"-"Z","0"-"9"])*>
+
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+ProgramaLugosi Lugosi () :
+{ProgramaLugosi p; ArrayList<Func> a;}
+{ 
+  p = Main() (a=Func())? <EOF> 
+  {return new ProgramaLugosi(p,a);}
+   
+}
+
+Arraylist Func():
+{Arraylist func = new Arraylist(); String tipo;  Token id; ArrayList <ListaArg> listaArg; ArrayList <VarDecl> vd; ArrayList <SeqComandos> seqComandos;}
+{
+  (
+    {func.add(
+      <FUNCTION> (tipo = Tipo()) (id = <TOKEN_ID>) <APARENTESES> (listaArg = (ListaArg()))? <FPARENTESES>
+     <ACHAVES> (vd = VarDecl()) (seqComandos = SeqComandos()) <FCHAVES>
+     )}
+     )+
+  {return func;}
+}
+
+ArrayList ListaArg():
+{Arraylist a = new Arraylist(); String tipo; Token id;}
+{
+  (
+    {a.add(
+      (tipo = Tipo()) (id = <TOKEN_ID>) (<PONTO_VIRGULA> ListaArg())
+      )}
+      )?
+  {return a;}
+}
+
+Main Main ():
+{ArrayList <VarDecl> vd; ArrayList <SeqComandos> seqComandos;}
+{
+ <MAIN> <ACHAVES> (vd = VarDecl()) (seqComandos = SeqComandos()) <FCHAVES>
+  {return new Main(vd, seqComandos);} 
+}
+
+void VarDecl():
+{ArrayList a = new ArrayList;  Token id; String tipo;}
+{
+  ({
+    a.add(<VAR> (tipo = Tipo()) (id =  <TOKEN_ID>) <PONTO_VIRGULA>)
+    })*
+  {return a;}
+}
+
+void Tipo():
+{String t;}
+{
+  t = <TIPO>
+  {return t;}
+}
+
+void SeqComandos():
+{}
+{
+  (Comando())*
+}
+
+void Comando():
+{}
+{
+  (<TOKEN_ID> Comando2()) 
+  |(<IF> <APARENTESES> Exp() <FPARENTESES> <ACHAVES> SeqComandos() <FCHAVES> <PONTO_VIRGULA>)
+  |(<WHILE> <APARENTESES> Exp() <FPARENTESES> <DO> <ACHAVES> SeqComandos() <FCHAVES> <PONTO_VIRGULA>)
+  |(<DO> <ACHAVES> SeqComandos() <FCHAVES> <WHILE> <APARENTESES> Exp() <FPARENTESES> <PONTO_VIRGULA>)
+  |(<RETURN> Exp() <PONTO_VIRGULA>)
+  |(<PRINT> <APARENTESES> Exp() <FPARENTESES> <PONTO_VIRGULA>)
+
+}
+
+//Comando 2 criado para eliminar a recursão da gramática
+void Comando2():
+{}
+{
+  (<ATRIBUICAO> Exp() <PONTO_VIRGULA>) 
+  |(<APARENTESES> ListaExp() <FPARENTESES> <PONTO_VIRGULA>)
+}
+
+void Exp():
+{}
+{
+  (<APARENTESES> Exp() <OP> Exp() <FPARENTESES>)
+  | Fator()
+}
+
+void ListaExp():
+{}
+{
+  Exp() ListaExp2()
+}
+
+//Criada para eliminar a recursao em ListExp
+void ListaExp2():
+{}
+{
+  (<VIRGULA> Exp() ListaExp2())?
+}
+
+void Fator():
+{}
+{
+  (<TOKEN_ID> Fator2()) 
+  | <TOKEN_NUMLITERAL> 
+  | <TRUE> 
+  | <FALSE>
+}
+
+void Fator2():
+{}
+{
+  (<APARENTESES> (ListaExp())? <FPARENTESES>)?
+}
