@@ -28,11 +28,13 @@ class Comando{}
 class CAtrib extends Comando{
   String id;
   Exp e;
+  CAtrib(id, e) {this.id = id.image; this.e = comando2;}
 }
 
 class CExpParenteses extends Comando{
   String id;
   ArrayList <ListaExp> listExp;
+  CExpParenteses(id, listExp) {this.id = id.image; this.listExp = comando2;}
 }
 
 class CIf extends Comando{
@@ -237,14 +239,15 @@ ArrayList SeqComandos():
 }
 
 void Comando():
-{Token id; Exp e; ArrayList <SeqComandos> seqComandos; ArrayList<ListExp> listExp;}
+{Token id; Exp e; ArrayList <SeqComandos> seqComandos; ArrayList<ListExp> listExp; Object comando2}
 {
-  ((id = <TOKEN_ID>) (listaExp or e= Comando2()))
-  	//{RETORNA OU LISTAEXP OU EXP E ISSO IMPACTA EM QUAL FUNCAO CHAMAR, PRECISAMOS DE UM HELPPPPPP}
-  //ESSES RETURNS COM PIPE PRECISAM TER MAIS UM PARENTESES NA VOLTA?????????????????????
+  ((id = <TOKEN_ID>) (comando2 = Comando2()))
+  	{if comando2 istanceof(Exp)  return new CAtrib(id, ((Exp) comando2))
+      else: return new CExpParenteses(id, ((ArrayList<ListExp>) comando2))}
+
   |(<IF> <APARENTESES> (e=Exp()) <FPARENTESES> <ACHAVES> (seqComandos=SeqComandos()) <FCHAVES> <PONTO_VIRGULA>)
-  	{return new CIf(e, seqComandos)}
-  
+      {return new CIf(e, seqComandos)}
+    
   |(<WHILE> <APARENTESES> (e=Exp()) <FPARENTESES> <DO> <ACHAVES> (seqComandos=SeqComandos()) <FCHAVES> <PONTO_VIRGULA>)
   	{return new CWhile(e, seqComandos)}
   
@@ -261,13 +264,13 @@ void Comando():
 
 //Comando 2 criado para eliminar a recursão da gramática
 void Comando2():
-{Exp e; ArrayList<ListaExp> listaExp;}
+{Object e;}
 {
   (<ATRIBUICAO> (e=Exp()) <PONTO_VIRGULA>)
   	{return e;} 
   
-  |(<APARENTESES> (listaExp=ListaExp()) <FPARENTESES> <PONTO_VIRGULA>)
-  	{return listaExp;}
+  |(<APARENTESES> (e=ListaExp()) <FPARENTESES> <PONTO_VIRGULA>)
+  	{return e;}
 }
 
 void Exp():
