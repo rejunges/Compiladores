@@ -21,6 +21,7 @@ class VarDecl{
 
 class SeqComandos{
   ArrayList <Comando> comando; 
+  SeqComandos(comando) {this.c = comando;}
 }
 
 class Comando{}
@@ -37,24 +38,29 @@ class CExpParenteses extends Comando{
 class CIf extends Comando{
   Exp e;
   ArrayList <SeqComandos> seqComandos;
+  CIf(e, seqComandos) {this.e=e; this.seqComandos = seqComandos;}
 }
 
 class CWhile extends Comando{
   Exp e;
   ArrayList <SeqComandos> seqComandos;    
+  CWhile(e, seqComandos) {this.e=e; this.seqComandos = seqComandos;}
 }
 
 class CDo extends Comando{
   Exp e;
   ArrayList <SeqComandos> seqComandos;
+  CDo(e, seqComandos) {this.e=e; this.seqComandos = seqComandos;}
 }
 
 class CReturn extends Comando{
   Exp e;
+  CReturn(e) {this.e = e;}
 }
 
 class CPrint extends Comando{
   Exp e;
+  CPrint(e) {this.e = e;}
 }
 
 class Exp{}
@@ -85,7 +91,7 @@ class FTipo extends Fator {
 }
 
 class ListaExp {
-  Exp e;
+  Exp e; 
 }
 
 class Func {
@@ -175,8 +181,8 @@ ProgramaLugosi Lugosi () :
    
 }
 
-Arraylist Func():
-{Arraylist func = new Arraylist(); String tipo;  Token id; ArrayList <ListaArg> listaArg; ArrayList <VarDecl> vd; ArrayList <SeqComandos> seqComandos;}
+ArrayList Func():
+{ArrayList func = new ArrayList(); String tipo;  Token id; ArrayList <ListaArg> listaArg; ArrayList <VarDecl> vd; ArrayList <SeqComandos> seqComandos;}
 {
   (
     {func.add(
@@ -188,7 +194,7 @@ Arraylist Func():
 }
 
 ArrayList ListaArg():
-{Arraylist a = new Arraylist(); String tipo; Token id;}
+{ArrayList a = new ArrayList(); String tipo; Token id;}
 {
   (
     {a.add(
@@ -205,7 +211,7 @@ Main Main ():
   {return new Main(vd, seqComandos);} 
 }
 
-void VarDecl():
+ArrayList VarDecl():
 {ArrayList a = new ArrayList;  Token id; String tipo;}
 {
   ({
@@ -214,37 +220,54 @@ void VarDecl():
   {return a;}
 }
 
-void Tipo():
+String Tipo():
 {String t;}
 {
   t = <TIPO>
   {return t;}
 }
 
-void SeqComandos():
-{}
+ArrayList SeqComandos():
+{ArrayList<Comando> c = new ArrayList();}
 {
-  (Comando())*
+  ({
+  	c.add(Comando())
+  })*
+  {return c;}
 }
 
 void Comando():
-{}
+{Token id; Exp e; ArrayList <SeqComandos> seqComandos; ArrayList<ListExp> listExp;}
 {
-  (<TOKEN_ID> Comando2()) 
-  |(<IF> <APARENTESES> Exp() <FPARENTESES> <ACHAVES> SeqComandos() <FCHAVES> <PONTO_VIRGULA>)
-  |(<WHILE> <APARENTESES> Exp() <FPARENTESES> <DO> <ACHAVES> SeqComandos() <FCHAVES> <PONTO_VIRGULA>)
-  |(<DO> <ACHAVES> SeqComandos() <FCHAVES> <WHILE> <APARENTESES> Exp() <FPARENTESES> <PONTO_VIRGULA>)
-  |(<RETURN> Exp() <PONTO_VIRGULA>)
-  |(<PRINT> <APARENTESES> Exp() <FPARENTESES> <PONTO_VIRGULA>)
+  ((id = <TOKEN_ID>) (listaExp or e= Comando2()))
+  	//{RETORNA OU LISTAEXP OU EXP E ISSO IMPACTA EM QUAL FUNCAO CHAMAR, PRECISAMOS DE UM HELPPPPPP}
+  //ESSES RETURNS COM PIPE PRECISAM TER MAIS UM PARENTESES NA VOLTA?????????????????????
+  |(<IF> <APARENTESES> (e=Exp()) <FPARENTESES> <ACHAVES> (seqComandos=SeqComandos()) <FCHAVES> <PONTO_VIRGULA>)
+  	{return new CIf(e, seqComandos)}
+  
+  |(<WHILE> <APARENTESES> (e=Exp()) <FPARENTESES> <DO> <ACHAVES> (seqComandos=SeqComandos()) <FCHAVES> <PONTO_VIRGULA>)
+  	{return new CWhile(e, seqComandos)}
+  
+  |(<DO> <ACHAVES> (seqComandos=SeqComandos()) <FCHAVES> <WHILE> <APARENTESES> (e=Exp()) <FPARENTESES> <PONTO_VIRGULA>)
+  	{return new CDo(e, seqComandos)}
+  
+  |(<RETURN> (e=Exp()) <PONTO_VIRGULA>)
+  	{return new CReturn(e)}
+  
+  |(<PRINT> <APARENTESES> (e=Exp()) <FPARENTESES> <PONTO_VIRGULA>)
+  	{return new CPrint(e)}
 
 }
 
 //Comando 2 criado para eliminar a recursão da gramática
 void Comando2():
-{}
+{Exp e; ArrayList<ListaExp> listaExp;}
 {
-  (<ATRIBUICAO> Exp() <PONTO_VIRGULA>) 
-  |(<APARENTESES> ListaExp() <FPARENTESES> <PONTO_VIRGULA>)
+  (<ATRIBUICAO> (e=Exp()) <PONTO_VIRGULA>)
+  	{return e;} 
+  
+  |(<APARENTESES> (listaExp=ListaExp()) <FPARENTESES> <PONTO_VIRGULA>)
+  	{return listaExp;}
 }
 
 void Exp():
