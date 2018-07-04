@@ -4,65 +4,65 @@ import java.io.*;
 class ProgramaLugosi{
   Main main;
   ArrayList <Func> funcs;
-  ProgramaLugosi(p,a) {this.p = main; this.a = funcs;}
+  ProgramaLugosi(Main p, ArrayList <Func> a) {this.main = p; this.funcs = a;}
 }
 
 class Main{
   ArrayList <VarDecl> vd;
   ArrayList <SeqComandos> seqComandos;
-  Main(vd, seqComandos) {this.vd = vd; this.seqComandos = seqComandos;}
+  Main(ArrayList <VarDecl> vd, ArrayList <SeqComandos> seqComandos) {this.vd = vd; this.seqComandos = seqComandos;}
 }
 
 class VarDecl{
   String id;  
   String tipo;
-  VarDecl(id, tipo) {this.id = id.image; this.tipo = tipo;}
+  VarDecl(String id, String tipo) {this.id = id.image; this.tipo = tipo;}
 }
 
 class SeqComandos{
   ArrayList <Comando> comando; 
-  SeqComandos(comando) {this.c = comando;}
+  SeqComandos(ArrayList <Comando> comando) {this.c = comando;}
 }
 
 class Comando{}
 class CAtrib extends Comando{
   String id;
   Exp e;
-  CAtrib(id, e) {this.id = id.image; this.e = comando2;}
+  CAtrib(String id, Exp e) {this.id = id.image; this.e = comando2;}
 }
 
 class CExpParenteses extends Comando{
   String id;
   ArrayList <ListaExp> listExp;
-  CExpParenteses(id, listExp) {this.id = id.image; this.listExp = comando2;}
+  CExpParenteses(String id, ArrayList <ListaExp> listExp) {this.id = id.image; this.listExp = comando2;}
 }
 
 class CIf extends Comando{
   Exp e;
   ArrayList <SeqComandos> seqComandos;
-  CIf(e, seqComandos) {this.e=e; this.seqComandos = seqComandos;}
+  CIf(Exp e, ArrayList <SeqComandos> seqComandos) {this.e=e; this.seqComandos = seqComandos;}
 }
 
 class CWhile extends Comando{
   Exp e;
   ArrayList <SeqComandos> seqComandos;    
-  CWhile(e, seqComandos) {this.e=e; this.seqComandos = seqComandos;}
+  CWhile(Exp e, ArrayList <SeqComandos> seqComandos) {this.e=e; this.seqComandos = seqComandos;}
 }
 
 class CDo extends Comando{
   Exp e;
   ArrayList <SeqComandos> seqComandos;
-  CDo(e, seqComandos) {this.e=e; this.seqComandos = seqComandos;}
+  CDo(Exp e, ArrayList <SeqComandos> seqComandos) {this.e=e; this.seqComandos = seqComandos;}
 }
 
 class CReturn extends Comando{
   Exp e;
-  CReturn(e) {this.e = e;}
+  CReturn(Exp e) {this.e = e;}
 }
 
 class CPrint extends Comando{
   Exp e;
-  CPrint(e) {this.e = e;}
+  CPrint(Exp e) {this.e = e;}
 }
 
 class Exp{}
