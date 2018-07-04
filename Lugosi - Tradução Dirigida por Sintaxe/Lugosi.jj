@@ -1,5 +1,6 @@
 PARSER_BEGIN(Lugosi)
 import java.io.*;
+import java.util.*;
 
 class ProgramaLugosi{
   Main main;
@@ -9,50 +10,50 @@ class ProgramaLugosi{
 
 class Main{
   ArrayList <VarDecl> vd;
-  ArrayList <SeqComandos> seqComandos;
-  Main(ArrayList <VarDecl> vd, ArrayList <SeqComandos> seqComandos) {this.vd = vd; this.seqComandos = seqComandos;}
+  ArrayList <Comando> seqComandos;
+  Main(ArrayList <VarDecl> vd, ArrayList <Comando> seqComandos) {this.vd = vd; this.seqComandos = seqComandos;}
 }
 
 class VarDecl{
   String id;  
   String tipo;
-  VarDecl(String id, String tipo) {this.id = id.image; this.tipo = tipo;}
+  VarDecl(Token id, String tipo) {this.id = id.image; this.tipo = tipo;}
 }
 
 class SeqComandos{
   ArrayList <Comando> comando; 
-  SeqComandos(ArrayList <Comando> comando) {this.c = comando;}
+  SeqComandos(ArrayList <Comando> c) {this.comando = c;}
 }
 
 class Comando{}
 class CAtrib extends Comando{
   String id;
   Exp e;
-  CAtrib(String id, Exp e) {this.id = id.image; this.e = comando2;}
+  CAtrib(Token id, Exp comando2) {this.id = id.image; this.e = comando2;}
 }
 
 class CExpParenteses extends Comando{
   String id;
-  ArrayList <ListaExp> listExp;
-  CExpParenteses(String id, ArrayList <ListaExp> listExp) {this.id = id.image; this.listExp = comando2;}
+  ArrayList <Exp> listExp;
+  CExpParenteses(Token id, ArrayList <Exp> comando2) {this.id = id.image; this.listExp = comando2;}
 }
 
 class CIf extends Comando{
   Exp e;
-  ArrayList <SeqComandos> seqComandos;
-  CIf(Exp e, ArrayList <SeqComandos> seqComandos) {this.e=e; this.seqComandos = seqComandos;}
+  ArrayList <Comando> seqComandos;
+  CIf(Exp e, ArrayList <Comando> seqComandos) {this.e=e; this.seqComandos = seqComandos;}
 }
 
 class CWhile extends Comando{
   Exp e;
-  ArrayList <SeqComandos> seqComandos;    
-  CWhile(Exp e, ArrayList <SeqComandos> seqComandos) {this.e=e; this.seqComandos = seqComandos;}
+  ArrayList <Comando> seqComandos;    
+  CWhile(Exp e, ArrayList <Comando> seqComandos) {this.e=e; this.seqComandos = seqComandos;}
 }
 
 class CDo extends Comando{
   Exp e;
-  ArrayList <SeqComandos> seqComandos;
-  CDo(Exp e, ArrayList <SeqComandos> seqComandos) {this.e=e; this.seqComandos = seqComandos;}
+  ArrayList <Comando> seqComandos;
+  CDo(Exp e, ArrayList <Comando> seqComandos) {this.e=e; this.seqComandos = seqComandos;}
 }
 
 class CReturn extends Comando{
@@ -81,7 +82,7 @@ class FId extends Fator{
 
 class FExpParenteses extends Fator {
   String id;
-  ArrayList <ListaExp> listExp;
+  ArrayList <Exp> listExp;
 }
 
 class FNumLiteral extends Fator {
@@ -101,16 +102,17 @@ class Func {
   String id;
   ArrayList <ListaArg> listaArg;
   ArrayList <VarDecl> vd;
-  ArrayList <SeqComandos> seqComandos;
+  ArrayList <Comando> seqComandos;
 
-  Func(tipo,id,listaArg,vd,seqComandos) {this.tipo = tipo; this.id = id.image; this.listaArg; this.vd = vd; this.seqComandos = seqComandos;}
+  Func(String tipo, Token id, ArrayList <ListaArg> listaArg, ArrayList <VarDecl> vd, ArrayList <Comando> seqComandos) 
+  {this.tipo = tipo; this.id = id.image; this.listaArg = listaArg; this.vd = vd; this.seqComandos = seqComandos;}
 }
 
 class ListaArg{
   String tipo;
   String id;
 
-  ListaArg(tipo, id) {this.tipo = tipo; this.id = id.image;}
+  ListaArg(String tipo, Token id) {this.tipo = tipo; this.id = id.image;}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -176,94 +178,84 @@ TOKEN :
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ProgramaLugosi Lugosi () :
-{ProgramaLugosi p; ArrayList<Func> a;}
+{Main p; ArrayList<Func> a;}
 { 
   p = Main() (a=Func())? <EOF> 
   {return new ProgramaLugosi(p,a);}
    
 }
 
-ArrayList Func():
-{ArrayList func = new ArrayList(); String tipo;  Token id; ArrayList <ListaArg> listaArg; ArrayList <VarDecl> vd; ArrayList <SeqComandos> seqComandos;}
+ArrayList<Func> Func():
+{ArrayList<Func> func; ArrayList f; String tipo;  Token id; ArrayList <ListaArg> listaArg; ArrayList <VarDecl> vd; ArrayList <Comando> seqComandos;}
 {
-  (
-    {func.add(
-      <FUNCTION> (tipo = Tipo()) (id = <TOKEN_ID>) <APARENTESES> (listaArg = (ListaArg()))? <FPARENTESES>
-     <ACHAVES> (vd = VarDecl()) (seqComandos = SeqComandos()) <FCHAVES>
-     )}
-     )+
+  (<FUNCTION> tipo = Tipo() id = <TOKEN_ID> <APARENTESES> (listaArg = ListaArg()) <FPARENTESES>
+     <ACHAVES> (vd = VarDecl()) (seqComandos = SeqComandos()) <FCHAVES>  {func.add(new Func(tipo, id, listaArg, vd, seqComandos));  })+
+  
   {return func;}
 }
 
-ArrayList ListaArg():
-{ArrayList a = new ArrayList(); String tipo; Token id;}
+ArrayList<ListaArg> ListaArg():
+{ArrayList<ListaArg> a; String tipo; Token id;}
 {
-  (
-    {a.add(
-      (tipo = Tipo()) (id = <TOKEN_ID>) (<PONTO_VIRGULA> ListaArg())
-      )}
-      )?
+  (tipo = Tipo() id = <TOKEN_ID> <PONTO_VIRGULA> ListaArg() {a.add(new ListaArg(tipo, id));} )?
+
   {return a;}
 }
 
 Main Main ():
-{ArrayList <VarDecl> vd; ArrayList <SeqComandos> seqComandos;}
+{ArrayList <VarDecl> vd; ArrayList <Comando> seqComandos;}
 {
  <MAIN> <ACHAVES> (vd = VarDecl()) (seqComandos = SeqComandos()) <FCHAVES>
   {return new Main(vd, seqComandos);} 
 }
 
-ArrayList VarDecl():
-{ArrayList a = new ArrayList;  Token id; String tipo;}
+ArrayList<VarDecl> VarDecl():
+{ArrayList<VarDecl> a;  Token id; String tipo;}
 {
-  ({
-    a.add(<VAR> (tipo = Tipo()) (id =  <TOKEN_ID>) <PONTO_VIRGULA>)
-    })*
+  (<VAR> tipo = Tipo() id =  <TOKEN_ID> <PONTO_VIRGULA>  {a.add(new VarDecl(id, tipo));}  )*
   {return a;}
 }
 
 String Tipo():
-{String t;}
+{Token t;}
 {
   t = <TIPO>
-  {return t;}
+  {return t.image;}
 }
 
-ArrayList SeqComandos():
-{ArrayList<Comando> c = new ArrayList();}
+ArrayList<Comando> SeqComandos():
+{ArrayList<Comando> c; Comando comando;}
 {
-  ({
-  	c.add(Comando())
-  })*
+  (comando = Comando() {c.add(comando);})*
   {return c;}
 }
 
-void Comando():
-{Token id; Exp e; ArrayList <SeqComandos> seqComandos; ArrayList<ListExp> listExp; Object comando2}
+Comando Comando():
+{Token id; Exp e; ArrayList<Comando> seqComandos; ArrayList<Exp> listExp; Object comando2;}
 {
   ((id = <TOKEN_ID>) (comando2 = Comando2()))
-  	{if comando2 istanceof(Exp)  return new CAtrib(id, ((Exp) comando2))
-      else: return new CExpParenteses(id, ((ArrayList<ListExp>) comando2))}
+  	{if (comando2 instanceof Exp)  return new CAtrib(id, ((Exp) comando2));
+      else return new CExpParenteses(id, ((ArrayList<Exp>) comando2)); }
 
   |(<IF> <APARENTESES> (e=Exp()) <FPARENTESES> <ACHAVES> (seqComandos=SeqComandos()) <FCHAVES> <PONTO_VIRGULA>)
-      {return new CIf(e, seqComandos)}
+      {return new CIf(e, seqComandos);}
     
   |(<WHILE> <APARENTESES> (e=Exp()) <FPARENTESES> <DO> <ACHAVES> (seqComandos=SeqComandos()) <FCHAVES> <PONTO_VIRGULA>)
-  	{return new CWhile(e, seqComandos)}
+  	{return new CWhile(e, seqComandos);}
   
   |(<DO> <ACHAVES> (seqComandos=SeqComandos()) <FCHAVES> <WHILE> <APARENTESES> (e=Exp()) <FPARENTESES> <PONTO_VIRGULA>)
-  	{return new CDo(e, seqComandos)}
+  	{return new CDo(e, seqComandos);}
   
   |(<RETURN> (e=Exp()) <PONTO_VIRGULA>)
-  	{return new CReturn(e)}
+  	{return new CReturn(e);}
   
   |(<PRINT> <APARENTESES> (e=Exp()) <FPARENTESES> <PONTO_VIRGULA>)
-  	{return new CPrint(e)}
+  	{return new CPrint(e);}
 
 }
 
 //Comando 2 criado para eliminar a recursão da gramática
-void Comando2():
+Object Comando2():
 {Object e;}
 {
   (<ATRIBUICAO> (e=Exp()) <PONTO_VIRGULA>)
@@ -273,37 +265,49 @@ void Comando2():
   	{return e;}
 }
 
-void Exp():
-{}
+Exp Exp():
+{Exp e1; Exp e2; Token operador; Fator f;}
 {
-  (<APARENTESES> Exp() <OP> Exp() <FPARENTESES>)
-  | Fator()
+  (<APARENTESES> e1= Exp() operador = <OP> e2 = Exp() <FPARENTESES>)
+    {return new OperacaoBinaria(e1, e2, operador.image);}
+  | f = Fator()
+    {return f;}
 }
 
-void ListaExp():
-{}
+ArrayList<Exp> ListaExp():
+{Exp e; ArrayList<Exp> l; ArrayList<Exp> l2;}
 {
-  Exp() ListaExp2()
+  e = Exp() l2=ListaExp2()
+  {l.add(e); return l.addAll(l2);}
 }
 
 //Criada para eliminar a recursao em ListExp
-void ListaExp2():
-{}
+ArrayList<Exp> ListaExp2():
+{Exp e; ArrayList<Exp> l;}
 {
-  (<VIRGULA> Exp() ListaExp2())?
+  (<VIRGULA> e = Exp() ListaExp2() {l.add(e);})?
+  {return l;}
 }
 
-void Fator():
-{}
+Fator Fator():
+{Token id; Token numLiteral; Token tipo;}
 {
-  (<TOKEN_ID> Fator2()) 
-  | <TOKEN_NUMLITERAL> 
-  | <TRUE> 
-  | <FALSE>
+  (id = <TOKEN_ID> Fator2()) 
+    {return}
+
+  | numLiteral = <TOKEN_NUMLITERAL> 
+    {return new FNumLiteral(numLiteral.image);}
+  
+  | tipo = <TRUE>
+    {return new FTipo(tipo.image);} 
+  
+  | tipo = <FALSE>
+    {return new FTipo(tipo.image);}
 }
 
-void Fator2():
-{}
+ArrayList<Fator2> Fator2():
+{ArrayList<Exp> l; ArrayList<Fator2> f2;}
 {
-  (<APARENTESES> (ListaExp())? <FPARENTESES>)?
+  (<APARENTESES> l = ListaExp() <FPARENTESES>{f2.add(l);}) ?
+  {return f2;}
 }
