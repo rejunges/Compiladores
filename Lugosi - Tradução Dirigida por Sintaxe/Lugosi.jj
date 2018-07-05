@@ -84,8 +84,8 @@ class FId extends Fator{
 
 class FExpParenteses extends Fator {
   String id;
-  ArrayList<ArrayList<Exp>> listExp;
-  FExpParenteses(String id, ArrayList<ArrayList<Exp>> f2) {this.id = id; this.listExp = f2;}
+  ArrayList<Exp> listExp;
+  FExpParenteses(String id, ArrayList<Exp> f2) {this.id = id; this.listExp = f2;}
 }
 
 class FNumLiteral extends Fator {
@@ -129,13 +129,55 @@ public class Lugosi {
     
     Lugosi parser = new Lugosi(new FileInputStream(args[0]));
     ProgramaLugosi lug = parser.Lugosi();
-    //printer(lug)
+    printer(lug)
   }
-/*
+
   static void printer (Lugosi lug){
-    if (lug istanceof )
+	if ( lug instanceof Main){
+
+      }
   }
-*/
+/*PRINTER EXP (operacao binaria e fatores) estão prontos*/
+	public void printer_OperacaoBinaria (Exp e){
+		if (e instanceof Fator){
+			printer_Fator(e);
+		}
+		else{
+			System.out.print("(");
+	  	printer_OperacaoBinaria(((OperacaoBinaria) e).e1);
+	  	System.out.print(((OperacaoBinaria) e).operador);
+	  	printer_OperacaoBinaria(((OperacaoBinaria) e).e2);	
+	  	System.out.print(")");
+		}
+	}
+
+	public void printer_Fator (Exp e){
+		if (e instanceof FExpParenteses){
+			printer_FExpParenteses(e);
+		}
+		else if (e instanceof FNumLiteral){
+			printer_FNumLiteral(e);
+		}
+		else if (e instanceof FTipo){
+			printer_FTipo(e);
+		}
+	}
+
+	public void printer_FExpParenteses(Exp e){
+		System.out.print( ((FExpParenteses) e).id);
+		for (Exp e1 : ((FExpParenteses)e).listExp){
+			printer_Fator(e1);
+		}
+	}
+
+	public void printer_FNumLiteral(Exp e){
+		System.out.print( ((FNumLiteral) e).numLiteral);
+	}
+	
+	public void printer_FTipo(Exp e){
+		System.out.print( ((FTipo) e).tipo);
+	}
+
 }
 
 PARSER_END(Lugosi)
@@ -296,7 +338,7 @@ ArrayList<Exp> ListaExp2():
 }
 
 Fator Fator():
-{Token id; Token numLiteral; Token tipo; ArrayList<ArrayList<Exp>> f2;}
+{Token id; Token numLiteral; Token tipo; ArrayList<Exp> f2;}
 {
   (id = <TOKEN_ID> f2 =Fator2()) 
     {if (f2.isEmpty()) return new FId(id.image);
@@ -312,9 +354,9 @@ Fator Fator():
     {return new FTipo(tipo.image);}
 }
 
-ArrayList<ArrayList<Exp>> Fator2():
-{ArrayList<Exp> l; ArrayList<ArrayList<Exp>> f2 = new ArrayList<ArrayList<Exp>>();}
+ArrayList<Exp> Fator2():
+{ArrayList<Exp> l = new ArrayList<Exp>();}
 {
-  (<APARENTESES> l = ListaExp() <FPARENTESES> { f2.add(l); } ) ?
-  {return f2;}
+  (<APARENTESES> l = ListaExp() <FPARENTESES>) ?
+  {return l;}
 }
