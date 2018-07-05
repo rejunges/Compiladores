@@ -72,29 +72,35 @@ class OperacaoBinaria extends Exp{
   Exp e1;
   Exp e2;
   String operador;
+  OperacaoBinaria(Exp e1, Exp e2, String operador) {this.e1 = e1; this.e2 = e2; this.operador = operador;}
 }
 
 class Fator extends Exp{}
 
 class FId extends Fator{
   String id;
+  FId(String id) {this.id = id;}
 }
 
 class FExpParenteses extends Fator {
   String id;
-  ArrayList <Exp> listExp;
+  ArrayList<ArrayList<Exp>> listExp;
+  FExpParenteses(String id, ArrayList<ArrayList<Exp>> f2) {this.id = id; this.listExp = f2;}
 }
 
 class FNumLiteral extends Fator {
   String numLiteral;
+  FNumLiteral(String numLiteral){this.numLiteral = numLiteral;}
 }
 
 class FTipo extends Fator {
   String tipo;
+  FTipo(String tipo) {this.tipo = tipo;}
 }
 
 class ListaExp {
   Exp e; 
+  ListaExp(Exp e) {this.e = e;}
 }
 
 class Func {
@@ -275,10 +281,10 @@ Exp Exp():
 }
 
 ArrayList<Exp> ListaExp():
-{Exp e; ArrayList<Exp> l; ArrayList<Exp> l2;}
+{Exp e; ArrayList<Exp> l2;}
 {
   e = Exp() l2=ListaExp2()
-  {l.add(e); return l.addAll(l2);}
+  {l2.add(0, e);  return l2;}
 }
 
 //Criada para eliminar a recursao em ListExp
@@ -290,10 +296,11 @@ ArrayList<Exp> ListaExp2():
 }
 
 Fator Fator():
-{Token id; Token numLiteral; Token tipo;}
+{Token id; Token numLiteral; Token tipo; ArrayList<ArrayList<Exp>> f2;}
 {
-  (id = <TOKEN_ID> Fator2()) 
-    {return}
+  (id = <TOKEN_ID> f2 =Fator2()) 
+    {if (f2.isEmpty()) return new FId(id.image);
+      else return new FExpParenteses(id.image, f2);}
 
   | numLiteral = <TOKEN_NUMLITERAL> 
     {return new FNumLiteral(numLiteral.image);}
@@ -305,9 +312,9 @@ Fator Fator():
     {return new FTipo(tipo.image);}
 }
 
-ArrayList<Fator2> Fator2():
-{ArrayList<Exp> l; ArrayList<Fator2> f2;}
+ArrayList<ArrayList<Exp>> Fator2():
+{ArrayList<Exp> l; ArrayList<ArrayList<Exp>> f2;}
 {
-  (<APARENTESES> l = ListaExp() <FPARENTESES>{f2.add(l);}) ?
+  (<APARENTESES> l = ListaExp() <FPARENTESES> { f2.add(l); } ) ?
   {return f2;}
 }
