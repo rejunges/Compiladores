@@ -184,7 +184,7 @@ TOKEN :
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ProgramaLugosi Lugosi () :
-{Main p; ArrayList<Func> a;}
+{Main p; ArrayList<Func> a = new ArrayList<Func>();}
 { 
   p = Main() (a=Func())? <EOF> 
   {return new ProgramaLugosi(p,a);}
@@ -192,7 +192,7 @@ ProgramaLugosi Lugosi () :
 }
 
 ArrayList<Func> Func():
-{ArrayList<Func> func; ArrayList f; String tipo;  Token id; ArrayList <ListaArg> listaArg; ArrayList <VarDecl> vd; ArrayList <Comando> seqComandos;}
+{ArrayList<Func> func = new ArrayList<Func> (); ArrayList f; String tipo;  Token id; ArrayList <ListaArg> listaArg; ArrayList <VarDecl> vd; ArrayList <Comando> seqComandos;}
 {
   (<FUNCTION> tipo = Tipo() id = <TOKEN_ID> <APARENTESES> (listaArg = ListaArg()) <FPARENTESES>
      <ACHAVES> (vd = VarDecl()) (seqComandos = SeqComandos()) <FCHAVES>  {func.add(new Func(tipo, id, listaArg, vd, seqComandos));  })+
@@ -201,7 +201,7 @@ ArrayList<Func> Func():
 }
 
 ArrayList<ListaArg> ListaArg():
-{ArrayList<ListaArg> a; String tipo; Token id;}
+{ArrayList<ListaArg> a = new ArrayList<ListaArg>(); String tipo; Token id;}
 {
   (tipo = Tipo() id = <TOKEN_ID> <PONTO_VIRGULA> ListaArg() {a.add(new ListaArg(tipo, id));} )?
 
@@ -216,7 +216,7 @@ Main Main ():
 }
 
 ArrayList<VarDecl> VarDecl():
-{ArrayList<VarDecl> a;  Token id; String tipo;}
+{ArrayList<VarDecl> a = new ArrayList<VarDecl>();  Token id; String tipo;}
 {
   (<VAR> tipo = Tipo() id =  <TOKEN_ID> <PONTO_VIRGULA>  {a.add(new VarDecl(id, tipo));}  )*
   {return a;}
@@ -230,7 +230,7 @@ String Tipo():
 }
 
 ArrayList<Comando> SeqComandos():
-{ArrayList<Comando> c; Comando comando;}
+{ArrayList<Comando> c = new ArrayList<Comando>() ; Comando comando;}
 {
   (comando = Comando() {c.add(comando);})*
   {return c;}
@@ -289,7 +289,7 @@ ArrayList<Exp> ListaExp():
 
 //Criada para eliminar a recursao em ListExp
 ArrayList<Exp> ListaExp2():
-{Exp e; ArrayList<Exp> l;}
+{Exp e; ArrayList<Exp> l = new ArrayList<Exp>();}
 {
   (<VIRGULA> e = Exp() ListaExp2() {l.add(e);})?
   {return l;}
@@ -313,7 +313,7 @@ Fator Fator():
 }
 
 ArrayList<ArrayList<Exp>> Fator2():
-{ArrayList<Exp> l; ArrayList<ArrayList<Exp>> f2;}
+{ArrayList<Exp> l; ArrayList<ArrayList<Exp>> f2 = new ArrayList<ArrayList<Exp>>();}
 {
   (<APARENTESES> l = ListaExp() <FPARENTESES> { f2.add(l); } ) ?
   {return f2;}
