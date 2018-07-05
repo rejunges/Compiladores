@@ -125,18 +125,71 @@ class ListaArg{
 
 public class Lugosi {
 
-  public static void main(String args[]) throws ParseException,IOException {
-    
-    Lugosi parser = new Lugosi(new FileInputStream(args[0]));
-    ProgramaLugosi lug = parser.Lugosi();
-    printer(lug)
-  }
+	public static void main(String args[]) throws ParseException,IOException {
 
-  static void printer (Lugosi lug){
-	if ( lug instanceof Main){
+		Lugosi parser = new Lugosi(new FileInputStream(args[0]));
+		ProgramaLugosi lug = parser.Lugosi();
+		printer(lug)
+	}
 
-      }
-  }
+	static void printer (Lugosi lug){
+		if ( lug instanceof Main){
+
+		  }
+	}
+
+/*PRINTER DO COMANDO (Não finalizado)*/
+	public void printer_Comando(Comando c){
+		if (c instanceof CAtrib){
+			printer_CAtrib(c);
+		}
+		else if (c instanceof CExpParenteses){
+			printer_CExpParenteses(c);
+		}
+		else if (c instanceof CIf){
+			printer_CIf(c);
+		}
+		else if (c instanceof CWhile){
+			printer_CWhile(c);
+		}
+		else if (c instanceof CDo){
+			printer_CDo(c);
+		}
+		else if (c instanceof CReturn){
+			printer_CReturn(c);
+		}
+		else if (c instanceof CPrint){
+			printer_CPrint(c);
+		}	
+	}
+
+	public void printer_CAtrib(Comando c){
+
+	}
+
+	public void printer_CExpParenteses(Comando c){
+		
+	}
+
+	public void printer_CIf(Comando c){
+		
+	}
+
+	public void printer_CWhile(Comando c){
+		
+	}
+
+	public void printer_CDo(Comando c){
+		
+	}
+
+	public void printer_CReturn(Comando c){
+		
+	}
+
+	public void printer_CPrint(Comando c){
+		
+	}
 /*PRINTER EXP (operacao binaria e fatores) estão prontos*/
 	public void printer_OperacaoBinaria (Exp e){
 		if (e instanceof Fator){
@@ -144,10 +197,10 @@ public class Lugosi {
 		}
 		else{
 			System.out.print("(");
-	  	printer_OperacaoBinaria(((OperacaoBinaria) e).e1);
-	  	System.out.print(((OperacaoBinaria) e).operador);
-	  	printer_OperacaoBinaria(((OperacaoBinaria) e).e2);	
-	  	System.out.print(")");
+		  	printer_OperacaoBinaria(((OperacaoBinaria) e).e1);
+		  	System.out.print(((OperacaoBinaria) e).operador);
+		  	printer_OperacaoBinaria(((OperacaoBinaria) e).e2);	
+		  	System.out.print(")");
 		}
 	}
 
