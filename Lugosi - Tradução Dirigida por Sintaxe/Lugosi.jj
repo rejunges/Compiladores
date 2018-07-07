@@ -125,7 +125,7 @@ class ListaArg{
 
 public class Lugosi {
 
-	public void main(String args[]) throws ParseException,IOException {
+	public static void main(String args[]) throws ParseException,IOException {
 
 		Lugosi parser = new Lugosi(new FileInputStream(args[0]));
 		ProgramaLugosi lug = parser.Lugosi();
@@ -133,14 +133,14 @@ public class Lugosi {
 	}
 
   /*printer é o ProgramaLugosi */
-	public void printer (ProgramaLugosi lug){
+	public static void printer (ProgramaLugosi lug){
 		printer_Main(lug.main);
 		for (Func f : lug.funcs){
 			printer_Func(f);
 		}
 	}
 
-	public void printer_Main(Main main){
+	public static void printer_Main(Main main){
 		System.out.print("main");
 		System.out.print("{");
 
@@ -152,21 +152,21 @@ public class Lugosi {
 		System.out.print("}");
 	}
 	
-	public void printer_VarDecl(VarDecl vd){
+	public static void printer_VarDecl(VarDecl vd){
 		System.out.print("var");
 		System.out.print(vd.tipo);
 		System.out.print(vd.id);
 		System.out.print(";");	
 	}
 
-	public void printer_Func(Func f){
+	public static void printer_Func(Func f){
 		System.out.print("function");
 		System.out.print(f.tipo);
 		System.out.print(f.id);
 		System.out.print("(");
 
-		tamanho_listaArg = (f.listaArg).size(); 
-		cont = 0;
+		int tamanho_listaArg = (f.listaArg).size(); 
+		int cont = 0;
 		for(ListaArg arg: f.listaArg){
 			printer_ListaArg(arg);
 			/*Coloca a virgula se tem mais de um elemento e não coloca a vírgula depois do último elemento*/
@@ -190,7 +190,7 @@ public class Lugosi {
 					
 	}
 
-	public void printer_ListaArg(ListaArg listaArg){
+	public static void printer_ListaArg(ListaArg listaArg){
 		System.out.print(listaArg.tipo);
 		System.out.print(listaArg.id);
 		System.out.print(";");
@@ -198,13 +198,13 @@ public class Lugosi {
 
 
 /*PRINTER DO COMANDO e SeqComandos finalizado*/
-	public void printer_SeqComandos(ArrayList <Comando> comandos){
+	public static void printer_SeqComandos(ArrayList <Comando> comandos){
 		for (Comando c : comandos) {
 			printer_Comando(c);
 		}
 	}
 
-	public void printer_Comando(Comando c){
+	public static void printer_Comando(Comando c){
 		if (c instanceof CAtrib){
 			printer_CAtrib(c);
 		}
@@ -228,17 +228,17 @@ public class Lugosi {
 		}	
 	}
 
-	public void printer_Comando2(Object e){
+	public static void printer_Comando2(Object e){
 		if (e instanceof Exp){
 			System.out.print(":=");
 			printer_Exp((Exp) e);
 		}
-		else if (e instanceof ArrayList<Exp>){
+		else if (e instanceof ArrayList){
 			System.out.print("(");
-			tamanho_expressao = (e).size(); 
-			cont = 0;
+			int tamanho_expressao = ((ArrayList <Exp>)e).size(); 
+			int cont = 0;
 		
-			for (Exp expressao : e) {
+			for (Exp expressao : ((ArrayList <Exp>)e)) {
 				printer_Exp(expressao);
 				if (tamanho_expressao > 1 && cont < tamanho_expressao-1){
 					System.out.print(",");
@@ -250,17 +250,17 @@ public class Lugosi {
 		}
 	}
 
-	public void printer_CAtrib(Comando c){
+	public static void printer_CAtrib(Comando c){
 		System.out.print(((CAtrib) c).id);
 		printer_Comando2(((CAtrib) c).e);
 	}
 
-	public void printer_CExpParenteses(Comando c){
+	public static void printer_CExpParenteses(Comando c){
 		System.out.print(((CExpParenteses) c).id);
 		printer_Comando2(((CExpParenteses) c).listExp);
 	}
 
-	public void printer_CIf(Comando c){
+	public static void printer_CIf(Comando c){
 		System.out.print("if");
 		System.out.print("(");
 		printer_Exp(((CIf) c).e);
@@ -271,10 +271,10 @@ public class Lugosi {
 		System.out.print(";");
 	}
 
-	public void printer_CWhile(Comando c){
+	public static void printer_CWhile(Comando c){
 		System.out.print("while");
 		System.out.print("(");
-		printer_Exp(((CWhile) c.e));
+		printer_Exp((((CWhile) c).e));
 		System.out.print(")");
 		System.out.print("do");
 		System.out.print("{");
@@ -284,7 +284,7 @@ public class Lugosi {
 		
 	}
 
-	public void printer_CDo(Comando c){
+	public static void printer_CDo(Comando c){
 		System.out.print("do");
 		System.out.print("{");
 		printer_SeqComandos(((CDo) c).seqComandos); 
@@ -296,13 +296,13 @@ public class Lugosi {
 		System.out.print(";");
 	}
 
-	public void printer_CReturn(Comando c){
+	public static void printer_CReturn(Comando c){
 		System.out.print("return");	
 		printer_Exp(((CReturn) c).e);
 		System.out.print(";");
 	}
 
-	public void printer_CPrint(Comando c){
+	public static void printer_CPrint(Comando c){
 		System.out.print("print");
 		System.out.print("(");	
 		printer_Exp(((CPrint) c).e);
@@ -311,7 +311,7 @@ public class Lugosi {
 	}
 /*PRINTER EXP (operacao binaria e fatores) estão prontos*/
 	
-	public void printer_Exp (Exp e){
+	public static void printer_Exp (Exp e){
 		if (e instanceof Fator){
 			printer_Fator(e);
 		}
@@ -319,15 +319,15 @@ public class Lugosi {
 			printer_OperacaoBinaria(e);
 		}
 	}
-	public void printer_OperacaoBinaria (Exp e){
+	public static void printer_OperacaoBinaria (Exp e){
 		System.out.print("(");
-	  	printer_Exp(e.e1);
+	  	printer_Exp(((OperacaoBinaria)e).e1);
 	  	System.out.print(((OperacaoBinaria) e).operador);
-	  	printer_Exp(e.e2);	
+	  	printer_Exp(((OperacaoBinaria)e).e2);	
 	  	System.out.print(")");
 	}
 
-	public void printer_Fator (Exp e){
+	public static void printer_Fator (Exp e){
 		if (e instanceof FExpParenteses){
 			printer_FExpParenteses(e);
 		}
@@ -339,11 +339,11 @@ public class Lugosi {
 		}
 	}
 
-	public void printer_FExpParenteses(Exp e){
+	public static void printer_FExpParenteses(Exp e){
 		System.out.print( ((FExpParenteses) e).id);
 		
-		tamanho_expressao = (((FExpParenteses)e).listExp).size(); 
-		cont = 0;
+		int tamanho_expressao = (((FExpParenteses)e).listExp).size(); 
+		int cont = 0;
 		
 		for (Exp e1 : ((FExpParenteses)e).listExp){
 			printer_Fator(e1);
@@ -354,11 +354,11 @@ public class Lugosi {
 		}
 	}
 
-	public void printer_FNumLiteral(Exp e){
+	public static void printer_FNumLiteral(Exp e){
 		System.out.print( ((FNumLiteral) e).numLiteral);
 	}
 	
-	public void printer_FTipo(Exp e){
+	public static void printer_FTipo(Exp e){
 		System.out.print( ((FTipo) e).tipo);
 	}
 
