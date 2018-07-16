@@ -1,0 +1,549 @@
+PARSER_BEGIN(Lugosi)
+import java.io.*;
+import java.util.*;
+
+class ProgramaLugosi{
+  Main main;
+  ArrayList <Func> funcs;
+  ProgramaLugosi(Main p, ArrayList <Func> a) {this.main = p; this.funcs = a;}
+}
+
+class Main{
+  ArrayList <VarDecl> vd;
+  ArrayList <Comando> seqComandos;
+  Main(ArrayList <VarDecl> vd, ArrayList <Comando> seqComandos) {this.vd = vd; this.seqComandos = seqComandos;}
+}
+
+class VarDecl{
+  String id;  
+  String tipo;
+  VarDecl(Token id, String tipo) {this.id = id.image; this.tipo = tipo;}
+}
+
+class SeqComandos{
+  ArrayList <Comando> comando; 
+  SeqComandos(ArrayList <Comando> c) {this.comando = c;}
+}
+
+class Comando{}
+class CAtrib extends Comando{
+  String id;
+  Exp e;
+  CAtrib(Token id, Exp comando2) {this.id = id.image; this.e = comando2;}
+}
+
+class CExpParenteses extends Comando{
+  String id;
+  ArrayList <Exp> listExp;
+  CExpParenteses(Token id, ArrayList <Exp> comando2) {this.id = id.image; this.listExp = comando2;}
+}
+
+class CIf extends Comando{
+  Exp e;
+  ArrayList <Comando> seqComandos;
+  CIf(Exp e, ArrayList <Comando> seqComandos) {this.e=e; this.seqComandos = seqComandos;}
+}
+
+class CWhile extends Comando{
+  Exp e;
+  ArrayList <Comando> seqComandos;    
+  CWhile(Exp e, ArrayList <Comando> seqComandos) {this.e=e; this.seqComandos = seqComandos;}
+}
+
+class CDo extends Comando{
+  Exp e;
+  ArrayList <Comando> seqComandos;
+  CDo(Exp e, ArrayList <Comando> seqComandos) {this.e=e; this.seqComandos = seqComandos;}
+}
+
+class CReturn extends Comando{
+  Exp e;
+  CReturn(Exp e) {this.e = e;}
+}
+
+class CPrint extends Comando{
+  Exp e;
+  CPrint(Exp e) {this.e = e;}
+}
+
+class Exp{}
+
+class OperacaoBinaria extends Exp{
+  Exp e1;
+  Exp e2;
+  String operador;
+  OperacaoBinaria(Exp e1, Exp e2, String operador) {this.e1 = e1; this.e2 = e2; this.operador = operador;}
+}
+
+class Fator extends Exp{}
+
+class FId extends Fator{
+  String id;
+  FId(String id) {this.id = id;}
+}
+
+class FExpParenteses extends Fator {
+  String id;
+  ArrayList<Exp> listExp;
+  FExpParenteses(String id, ArrayList<Exp> f2) {this.id = id; this.listExp = f2;}
+}
+
+class FNumLiteral extends Fator {
+  String numLiteral;
+  FNumLiteral(String numLiteral){this.numLiteral = numLiteral;}
+}
+
+class FTipo extends Fator {
+  String tipo;
+  FTipo(String tipo) {this.tipo = tipo;}
+}
+
+class ListaExp {
+  Exp e; 
+  ListaExp(Exp e) {this.e = e;}
+}
+
+class Func {
+  String tipo;
+  String id;
+  ArrayList <ListaArg> listaArg;
+  ArrayList <VarDecl> vd;
+  ArrayList <Comando> seqComandos;
+
+  Func(String tipo, Token id, ArrayList <ListaArg> listaArg, ArrayList <VarDecl> vd, ArrayList <Comando> seqComandos) 
+  {this.tipo = tipo; this.id = id.image; this.listaArg = listaArg; this.vd = vd; this.seqComandos = seqComandos;}
+}
+
+class ListaArg{
+  String tipo;
+  String id;
+
+  ListaArg(String tipo, Token id) {this.tipo = tipo; this.id = id.image;}
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+public class Lugosi {
+
+	public static void main(String args[]) throws ParseException,IOException {
+
+		Lugosi parser = new Lugosi(new FileInputStream(args[0]));
+		ProgramaLugosi lug = parser.Lugosi();
+		printer(lug);
+	}
+
+  /*printer é o ProgramaLugosi */
+	public static void printer (ProgramaLugosi lug){
+		System.out.println("\n#include <stdio.h>");
+		System.out.println("#include <stdbool.h>\n"); // para aceitar false e true como booleanos 
+		for (Func f : lug.funcs){
+			printer_Func(f);
+		}
+		printer_Main(lug.main);
+	}
+
+	public static void printer_Main(Main main){
+		System.out.print("void "); //rever (de acordo com saida do return)
+		System.out.print("main()");
+		System.out.println("{ ");
+
+		for(VarDecl vardecl: main.vd){
+			printer_VarDecl(vardecl);
+		}
+		printer_SeqComandos(main.seqComandos);
+		
+		System.out.println("}");
+	}
+	
+	public static void printer_VarDecl(VarDecl vd){
+		//System.out.print("var ");
+		System.out.print(vd.tipo + " ");
+		System.out.print(vd.id);
+		System.out.println("; ");	
+	}
+
+	public static void printer_Func(Func f){
+		//System.out.print("function ");
+		System.out.print(f.tipo + " ");
+		System.out.print(f.id + " ");
+		System.out.print("(");
+
+		int tamanho_listaArg = (f.listaArg).size(); 
+		int cont = 0;
+		for(ListaArg arg: f.listaArg){
+			printer_ListaArg(arg);
+			/*Coloca a virgula se tem mais de um elemento e não coloca a vírgula depois do último elemento*/
+			if (tamanho_listaArg > 1 && cont < tamanho_listaArg-1){
+				System.out.print(", ");
+			}
+			cont = cont + 1;
+		}
+		
+		System.out.print(")");
+		System.out.println("{");
+
+		for(VarDecl vardecl: f.vd){
+			printer_VarDecl(vardecl);
+		}
+		
+		for(Comando c: f.seqComandos){
+			printer_Comando(c);
+		}
+		System.out.println("}");		
+					
+	}
+
+	public static void printer_ListaArg(ListaArg listaArg){
+		System.out.print(listaArg.tipo + " ");
+		System.out.print(listaArg.id);
+	}
+
+
+/*PRINTER DO COMANDO e SeqComandos finalizado*/
+	public static void printer_SeqComandos(ArrayList <Comando> comandos){
+		for (Comando c : comandos) {
+			printer_Comando(c);
+		}
+	}
+
+	public static void printer_Comando(Comando c){
+		if (c instanceof CAtrib){
+			printer_CAtrib(c);
+		}
+		else if (c instanceof CExpParenteses){
+			printer_CExpParenteses(c);
+		}
+		else if (c instanceof CIf){
+			printer_CIf(c);
+		}
+		else if (c instanceof CWhile){
+			printer_CWhile(c);
+		}
+		else if (c instanceof CDo){
+			printer_CDo(c);
+		}
+		else if (c instanceof CReturn){
+			printer_CReturn(c);
+		}
+		else if (c instanceof CPrint){
+			printer_CPrint(c);
+		}	
+	}
+
+	public static void printer_Comando2(Object e){
+		if (e instanceof Exp){
+			//System.out.print(":= ");
+			System.out.print("= ");
+			printer_Exp((Exp) e);
+			System.out.println(";");
+		}
+		else if (e instanceof ArrayList){
+			System.out.print(" (");
+			int tamanho_expressao = ((ArrayList <Exp>)e).size(); 
+			int cont = 0;
+		
+			for (Exp expressao : ((ArrayList <Exp>)e)) {
+				printer_Exp(expressao);
+				if (tamanho_expressao > 1 && cont < tamanho_expressao-1){
+					System.out.print(", ");
+				}
+				cont = cont + 1;
+			}
+			System.out.print(")");
+			System.out.println("; ");		
+		}
+	}
+
+	public static void printer_CAtrib(Comando c){
+		System.out.print(((CAtrib) c).id + " ");
+		printer_Comando2(((CAtrib) c).e);
+	}
+
+	public static void printer_CExpParenteses(Comando c){
+		System.out.print(((CExpParenteses) c).id + " ");
+		printer_Comando2(((CExpParenteses) c).listExp);
+	}
+
+	public static void printer_CIf(Comando c){
+		System.out.print("if ");
+		System.out.print("(");
+		printer_Exp(((CIf) c).e);
+		System.out.print(") ");
+		System.out.println("{ ");
+		printer_SeqComandos(((CIf) c).seqComandos); 
+		System.out.print("}");
+		System.out.println(";");
+	}
+
+	public static void printer_CWhile(Comando c){
+		System.out.print("while ");
+		System.out.print("(");
+		printer_Exp((((CWhile) c).e));
+		System.out.print(") ");
+		System.out.print("do ");
+		System.out.println("{ ");
+		printer_SeqComandos(((CWhile) c).seqComandos); 
+		System.out.print("}");
+		System.out.println(";");
+		
+	}
+
+	public static void printer_CDo(Comando c){
+		System.out.print("do ");
+		System.out.println("{ ");
+		printer_SeqComandos(((CDo) c).seqComandos); 
+		System.out.print("}");
+		System.out.print("while ");
+		System.out.print("(");
+		printer_Exp(((CDo) c).e);
+		System.out.print(")");
+		System.out.println(";");
+	}
+
+	public static void printer_CReturn(Comando c){
+		System.out.print("return ");	
+		printer_Exp(((CReturn) c).e);
+		System.out.println("; ");
+	}
+
+	public static void printer_CPrint(Comando c){
+		System.out.print("printf ");
+		System.out.print("(\"%d\",");	
+		printer_Exp(((CPrint) c).e);
+		System.out.print(")");
+		System.out.println("; ");	
+	}
+/*PRINTER EXP (operacao binaria e fatores) estão prontos*/
+	
+	public static void printer_Exp (Exp e){
+		if (e instanceof Fator){
+			printer_Fator(e);
+		}
+		else{
+			printer_OperacaoBinaria(e);
+		}
+	}
+	public static void printer_OperacaoBinaria (Exp e){
+		System.out.print("(");
+	  	printer_Exp(((OperacaoBinaria)e).e1);
+	  	System.out.print(((OperacaoBinaria) e).operador + " ");
+	  	printer_Exp(((OperacaoBinaria)e).e2);	
+	  	System.out.print(")");
+	}
+
+	public static void printer_Fator (Exp e){
+		if (e instanceof FExpParenteses){
+			printer_FExpParenteses(e);
+		}
+		else if (e instanceof FNumLiteral){
+			printer_FNumLiteral(e);
+		}
+		else if (e instanceof FTipo){
+			printer_FTipo(e);
+		}
+		else if (e instanceof FId){
+			printer_FId(e);
+		}
+	}
+
+	public static void printer_FId(Exp e){
+		System.out.print( ((FId) e).id + " ");
+	}
+
+	public static void printer_FExpParenteses(Exp e){
+		System.out.print( ((FExpParenteses) e).id + " ");
+		
+		int tamanho_expressao = (((FExpParenteses)e).listExp).size(); 
+		int cont = 0;
+		
+		for (Exp e1 : ((FExpParenteses)e).listExp){
+			printer_Fator(e1);
+			if (tamanho_expressao > 1 && cont < tamanho_expressao-1){
+				System.out.print(", ");
+			}
+			cont = cont + 1;
+		}
+	}
+
+	public static void printer_FNumLiteral(Exp e){
+		System.out.print( ((FNumLiteral) e).numLiteral + " ");
+	}
+	
+	public static void printer_FTipo(Exp e){
+		System.out.print( ((FTipo) e).tipo + " ");
+	}
+
+}
+
+PARSER_END(Lugosi)
+
+//////////////////////////////////////////////////////////////////////////////////////////////q
+
+SKIP :
+{
+  " "
+| "\t"
+| "\n"
+| "\r"
+}
+
+TOKEN :
+{
+  <MAIN: "main">
+| <ACHAVES: "{">
+| <FCHAVES: "}">
+| <VAR:"var">
+| <PONTO_VIRGULA:";">
+| <TIPO:("int" | "bool")>
+| <ATRIBUICAO:":=">
+| <APARENTESES:"(">
+| <FPARENTESES:")">
+| <VIRGULA:",">
+| <TRUE:"true">
+| <FALSE:"false">
+| <IF: "if">
+| <WHILE:"while">
+| <DO:"do">
+| <RETURN:"return">
+| <PRINT:"print">
+| <FUNCTION:"function">
+| <TOKEN_ID: ["a"-"z","A"-"Z"] ( ["a"-"z","A"-"Z","0"-"9"])* ("_")*>
+| <TOKEN_NUMLITERAL:(["0"-"9"])+ ("."(["0"-"9"])+)? ("E" ("+" | "-")? (["0"-"9"])+)?>
+}
+
+TOKEN :
+{
+ <OP: ("+" | "-" | "*" | "/" | "&&" | "||" | "<" | ">" | "==")>
+|< ID: ["a"-"z","A"-"Z"] ( ["a"-"z","A"-"Z","0"-"9"])*>
+
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+ProgramaLugosi Lugosi () :
+{Main p; ArrayList<Func> a = new ArrayList<Func>();}
+{ 
+  p = Main() (a=Func())? <EOF> 
+  {return new ProgramaLugosi(p,a);}
+   
+}
+
+ArrayList<Func> Func():
+{ArrayList<Func> func = new ArrayList<Func> (); ArrayList f; String tipo;  Token id; ArrayList <ListaArg> listaArg; ArrayList <VarDecl> vd; ArrayList <Comando> seqComandos;}
+{
+  (<FUNCTION> tipo = Tipo() id = <TOKEN_ID> <APARENTESES> (listaArg = ListaArg()) <FPARENTESES>
+     <ACHAVES> (vd = VarDecl()) (seqComandos = SeqComandos()) <FCHAVES>  {func.add(new Func(tipo, id, listaArg, vd, seqComandos));  })+
+  
+  {return func;}
+}
+
+ArrayList<ListaArg> ListaArg():
+{ArrayList<ListaArg> a = new ArrayList<ListaArg>(); String tipo; Token id; String tipo1; Token id1;}
+{
+  tipo = Tipo() id = <TOKEN_ID> (<VIRGULA> tipo1 = Tipo() id1 = <TOKEN_ID> {a.add(new ListaArg(tipo1, id1));})*
+
+  {a.add(0,new ListaArg(tipo, id)); return a;}
+}
+
+Main Main ():
+{ArrayList <VarDecl> vd; ArrayList <Comando> seqComandos;}
+{
+ <MAIN> <ACHAVES> (vd = VarDecl()) (seqComandos = SeqComandos()) <FCHAVES>
+  {return new Main(vd, seqComandos);} 
+}
+
+ArrayList<VarDecl> VarDecl():
+{ArrayList<VarDecl> a = new ArrayList<VarDecl>();  Token id; String tipo;}
+{
+  (<VAR> tipo = Tipo() id =  <TOKEN_ID> <PONTO_VIRGULA>  {a.add(new VarDecl(id, tipo));} )*
+  {return a;}
+}
+
+String Tipo():
+{Token t;}
+{
+  t = <TIPO>
+  {return t.image;}
+}
+
+ArrayList<Comando> SeqComandos():
+{ArrayList<Comando> c = new ArrayList<Comando>() ; Comando comando;}
+{
+  (comando = Comando() {c.add(comando);})*
+  {return c;}
+}
+
+Comando Comando():
+{Token id; Exp e; ArrayList<Comando> seqComandos; ArrayList<Exp> listExp; Object comando2;}
+{
+  ((id = <TOKEN_ID>) (comando2 = Comando2()))
+  	{if (comando2 instanceof Exp)  return new CAtrib(id, ((Exp) comando2));
+      else return new CExpParenteses(id, ((ArrayList<Exp>) comando2)); }
+
+  |(<IF> <APARENTESES> (e=Exp()) <FPARENTESES> <ACHAVES> (seqComandos=SeqComandos()) <FCHAVES> <PONTO_VIRGULA>)
+      {return new CIf(e, seqComandos);}
+    
+  |(<WHILE> <APARENTESES> (e=Exp()) <FPARENTESES> <DO> <ACHAVES> (seqComandos=SeqComandos()) <FCHAVES> <PONTO_VIRGULA>)
+  	{return new CWhile(e, seqComandos);}
+  
+  |(<DO> <ACHAVES> (seqComandos=SeqComandos()) <FCHAVES> <WHILE> <APARENTESES> (e=Exp()) <FPARENTESES> <PONTO_VIRGULA>)
+  	{return new CDo(e, seqComandos);}
+  
+  |(<RETURN> (e=Exp()) <PONTO_VIRGULA>)
+  	{return new CReturn(e);}
+  
+  |(<PRINT> <APARENTESES> (e=Exp()) <FPARENTESES> <PONTO_VIRGULA>)
+  	{return new CPrint(e);}
+
+}
+
+//Comando 2 criado para eliminar a recursão da gramática
+Object Comando2():
+{Object e;}
+{
+  (<ATRIBUICAO> (e=Exp()) <PONTO_VIRGULA>)
+  	{return e;} 
+  
+  |(<APARENTESES> (e=ListaExp()) <FPARENTESES> <PONTO_VIRGULA>)
+  	{return e;}
+}
+
+Exp Exp():
+{Exp e1; Exp e2; Token operador; Fator f;}
+{
+  (<APARENTESES> e1= Exp() operador = <OP> e2 = Exp() <FPARENTESES>)
+    {return new OperacaoBinaria(e1, e2, operador.image);}
+  | f = Fator()
+    {return f;}
+}
+
+ArrayList<Exp> ListaExp():
+{Exp e; Exp e1; ArrayList<Exp> l2 = new ArrayList<Exp>();}
+{
+  e = Exp() (<VIRGULA> e1 = Exp() {l2.add(e1);})*
+  {l2.add(0, e);  return l2;}
+}
+
+Fator Fator():
+{Token id; Token numLiteral; Token tipo; ArrayList<Exp> f2;}
+{
+  (id = <TOKEN_ID> f2 =Fator2()) 
+    {if (f2.isEmpty()) return new FId(id.image);
+      else return new FExpParenteses(id.image, f2);}
+
+  | numLiteral = <TOKEN_NUMLITERAL> 
+    {return new FNumLiteral(numLiteral.image);}
+  
+  | tipo = <TRUE>
+    {return new FTipo(tipo.image);} 
+  
+  | tipo = <FALSE>
+    {return new FTipo(tipo.image);}
+}
+
+ArrayList<Exp> Fator2():
+{ArrayList<Exp> l = new ArrayList<Exp>();}
+{
+  (<APARENTESES> l = ListaExp() <FPARENTESES>) ?
+  {return l;}
+}

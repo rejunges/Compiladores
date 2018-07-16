@@ -1,6 +1,14 @@
 main{
-var int iD2;
-var bool ID1;
-print ( renata );
-if  ((52.31E-12 < (iD2 / ID5)) ) {do { return false;} while (true);}; 
+	var int iD2;
+	var int ID1;
+
+	iD2 := 5;
+	ID1 := 1;
+	if  ((ID1 < iD2)) {
+		do { 
+			ID1 := (ID1 + 1);
+		}while ((ID1 < iD2));
+		print(ID1);
+		print(iD2);
+	}; 
 }
