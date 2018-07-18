@@ -1,5 +1,13 @@
 main { 
+var bool compiladores;
+var int numero;
+
 do { 
+	compiladores := true;	
 print ( compiladores ); 
-} while ( true );
+} while ( false );
+do { 
+	numero := 10;	
+print ( numero ); 
+} while ( false );
 }

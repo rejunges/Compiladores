@@ -308,7 +308,7 @@ public class Lugosi {
 
 	public static void printer_CPrint(Comando c){
 		System.out.print("printf ");
-		System.out.print("(\"%d\",");	
+		System.out.print("(\"%d\",");
 		printer_Exp(((CPrint) c).e);
 		System.out.print(")");
 		System.out.println("; ");	

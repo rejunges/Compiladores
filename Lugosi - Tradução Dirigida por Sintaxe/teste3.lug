@@ -1,2 +1,2 @@
 main{}
-function int var9_ ( bool souID5; ) { var int numero1 ; return numero1; }
+function int var9_ ( bool souID5 ) { var int numero1 ; return numero1; }
